@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predição de TDI — Anos Finais | Ensino Fundamental PE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F4EF;
+    --card: #FFFFFF;
+    --ink: #1B2330;
+    --ink-soft: #5B6472;
+    --line: #DDD8CC;
+    --teal: #0F6E63;
+    --teal-dark: #0B4F47;
+    --amber: #C97A2B;
+    --amber-soft: #F4E3CE;
+    --red: #B3432B;
+    --red-soft: #F6E3DD;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: -1px -1px;
+    min-height: 100vh;
+    padding: 48px 16px 80px;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal-dark);
+    background: #E4EFE9;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0 0 32px;
+    max-width: 52ch;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(27,35,48,0.04);
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 7px;
+    color: var(--ink);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink);
+    background: var(--paper);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  select { font-family: 'Inter', sans-serif; cursor: pointer; }
+
+  input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(15,110,99,0.15);
+  }
+
+  input:invalid:not(:placeholder-shown) {
+    border-color: var(--red);
+  }
+
+  button {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--teal);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    margin-top: 4px;
+  }
+
+  button:hover { background: var(--teal-dark); }
+  button:active { transform: scale(0.99); }
+  button:disabled { background: #9CA8A6; cursor: wait; }
+
+  .panel {
+    margin-top: 22px;
+    border-radius: 10px;
+    padding: 24px;
+    display: none;
+    animation: rise 0.25s ease;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel.show { display: block; }
+
+  .panel.result { background: var(--amber-soft); border: 1px solid #E6C698; }
+  .panel.error { background: var(--red-soft); border: 1px solid #E3B6A7; color: var(--red); font-size: 14px; }
+
+  .result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--amber);
+    margin-bottom: 4px;
+  }
+
+  .result-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .result-number span { font-size: 22px; color: var(--ink-soft); }
+
+  .bars { margin-top: 18px; }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .bar-row .bar-label { width: 92px; color: var(--ink-soft); flex-shrink: 0; }
+  .bar-track { flex: 1; background: rgba(27,35,48,0.08); border-radius: 4px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-fill.ai { background: var(--teal); }
+  .bar-fill.af { background: var(--amber); }
+  .bar-value { width: 52px; text-align: right; flex-shrink: 0; }
+
+  .history {
+    margin-top: 40px;
+  }
+
+  .history h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    margin: 0 0 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 6px;
+  }
+
+  td {
+    padding: 9px 6px;
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .empty-state {
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 14px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <span class="eyebrow">API · TDI Ensino Fundamental · Pernambuco</span>
+  <h1>Distorção idade-série<br>Anos Finais</h1>
+  <p class="subtitle">
+    Informe a TDI dos Anos Iniciais e o contexto da escola para estimar a TDI
+    dos Anos Finais do Ensino Fundamental, com base no modelo de regressão
+    linear treinado sobre dados do INEP/PE.
+  </p>
+
+  <div class="card">
+    <form id="form-predicao">
+
+      <div class="field">
+        <label for="tdiAI">TDI Anos Iniciais (%)</label>
+        <input type="number" id="tdiAI" name="tdiAI" step="0.1" min="0" max="100" placeholder="ex: 6.3" required>
+        <p class="hint">Taxa de Distorção Idade-série oficial dos Anos Iniciais (0 a 100).</p>
+      </div>
+
+      <div class="field">
+        <label for="localizacao">Localização</label>
+        <select id="localizacao" name="localizacao" required>
+          <option value="Urbana">Urbana</option>
+          <option value="Rural">Rural</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="dependencia">Dependência administrativa</label>
+        <select id="dependencia" name="dependencia" required>
+          <option value="Estadual">Estadual</option>
+          <option value="Municipal">Municipal</option>
+        </select>
+      </div>
+
+      <button type="submit" id="btn-submit">Calcular predição</button>
+    </form>
+
+    <div class="panel result" id="painel-resultado">
+      <div class="result-label">TDI Anos Finais — previsto</div>
+      <div class="result-number" id="valor-resultado">—<span>%</span></div>
+
+      <div class="bars">
+        <div class="bar-row">
+          <span class="bar-label">Anos Iniciais</span>
+          <div class="bar-track"><div class="bar-fill ai" id="barra-ai" style="width:0%"></div></div>
+          <span class="bar-value" id="valor-ai">0.0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Anos Finais</span>
+          <div class="bar-track"><div class="bar-fill af" id="barra-af" style="width:0%"></div></div>
+          <span class="bar-value" id="valor-af">0.0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel error" id="painel-erro"></div>
+  </div>
+
+  <div class="history">
+    <h2>Histórico de predições</h2>
+    <div id="historico-conteudo">
+      <p class="empty-state">Nenhuma predição realizada ainda nesta sessão.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000";
+
+  const form = document.getElementById("form-predicao");
+  const btnSubmit = document.getElementById("btn-submit");
+  const painelResultado = document.getElementById("painel-resultado");
+  const painelErro = document.getElementById("painel-erro");
+
+  function escalaBarra(valor) {
+    const maximo = 50;
+    return Math.min(100, (valor / maximo) * 100);
+  }
+
+  function mostrarResultado(dados) {
+    painelErro.classList.remove("show");
+
+    const tdiAI = dados.entrada.tdi_anos_iniciais;
+    const tdiAF = dados.tdi_anos_finais_previsto;
+
+    document.getElementById("valor-resultado").innerHTML = `${tdiAF.toFixed(2)}<span>%</span>`;
+    document.getElementById("valor-ai").textContent = `${tdiAI.toFixed(1)}%`;
+    document.getElementById("valor-af").textContent = `${tdiAF.toFixed(1)}%`;
+    document.getElementById("barra-ai").style.width = `${escalaBarra(tdiAI)}%`;
+    document.getElementById("barra-af").style.width = `${escalaBarra(tdiAF)}%`;
+
+    painelResultado.classList.add("show");
+  }
+
+  function mostrarErro(mensagem) {
+    painelResultado.classList.remove("show");
+    painelErro.textContent = mensagem;
+    painelErro.classList.add("show");
+  }
+
+  function formatarTimestamp(iso) {
+    const data = new Date(iso);
+    return data.toLocaleString("pt-BR");
+  }
+
+  async function carregarHistorico() {
+    const container = document.getElementById("historico-conteudo");
+    try {
+      const resposta = await fetch(`${API_URL}/predictions`);
+      if (!resposta.ok) throw new Error("Falha ao buscar histórico");
+
+      const dados = await resposta.json();
+
+      if (!dados.historico || dados.historico.length === 0) {
+        container.innerHTML = '<p class="empty-state">Nenhuma predição realizada ainda nesta sessão.</p>';
+        return;
+      }
+
+      const linhas = dados.historico.slice().reverse().map(item => `
+        <tr>
+          <td>${item.entrada.tdi_anos_iniciais.toFixed(1)}%</td>
+          <td>${item.entrada.localizacao}</td>
+          <td>${item.entrada.dependencia}</td>
+          <td>${item.tdi_anos_finais_previsto.toFixed(2)}%</td>
+          <td>${formatarTimestamp(item.timestamp)}</td>
+        </tr>
+      `).join("");
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>TDI AI</th>
+              <th>Localização</th>
+              <th>Dependência</th>
+              <th>TDI AF prevista</th>
+              <th>Quando</th>
+            </tr>
+          </thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      `;
+    } catch (erro) {
+      container.innerHTML = '<p class="empty-state">Não foi possível carregar o histórico.</p>';
+    }
+  }
+
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const tdiAIValor = document.getElementById("tdiAI").value;
+    const localizacao = document.getElementById("localizacao").value;
+    const dependencia = document.getElementById("dependencia").value;
+
+    if (tdiAIValor === "" || tdiAIValor === null) {
+      mostrarErro("Informe a TDI dos Anos Iniciais antes de continuar.");
+      return;
+    }
+
+    const payload = {
+      tdi_anos_iniciais: parseFloat(tdiAIValor),
+      localizacao: localizacao,
+      dependencia: dependencia,
+    };
+
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Calculando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resposta.ok) {
+        const corpoErro = await resposta.json().catch(() => null);
+        const detalhe = corpoErro && corpoErro.detail
+          ? (typeof corpoErro.detail === "string" ? corpoErro.detail : JSON.stringify(corpoErro.detail))
+          : `Erro ${resposta.status} ao consultar a API.`;
+        throw new Error(detalhe);
+      }
+
+      const dados = await resposta.json();
+      mostrarResultado(dados);
+      carregarHistorico();
+
+    } catch (erro) {
+      if (erro instanceof TypeError) {
+        mostrarErro(`Não foi possível conectar à API em ${API_URL}. Verifique se o backend está rodando.`);
+      } else {
+        mostrarErro(erro.message);
+      }
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Calcular predição";
+    }
+  });
+
+  carregarHistorico();
+</script>
+
+</body>
+</html>
